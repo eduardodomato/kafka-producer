@@ -6,6 +6,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
+import com.messaging.kafka.dto.Customer;
+
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -28,4 +30,15 @@ public class MessagePublisher {
 
     }
 
+    public void publishToTopic(Customer customer) {
+        CompletableFuture<SendResult<String, Object>> future = 
+                                      template.send("kafka-passthrough", customer);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                log.info("Sent customer = [{}] whit offset=[{}]", customer, result.getRecordMetadata().offset());
+            } else {
+                log.error("Unable to send message = [{}] due to : {}", customer, ex.getMessage());
+            }
+        });
+    }
 }

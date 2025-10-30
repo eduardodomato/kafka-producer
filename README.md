@@ -290,6 +290,62 @@ curl http://localhost:9191/producer/publish/Hello%20World
 curl http://localhost:9191/producer/publish/Test%20Message%202024
 ```
 
+#### Publish Customer
+
+Publishes a customer object to the configured Kafka topic.
+
+**Endpoint**: `POST /producer/publish/customer`
+
+**Request Body** (JSON):
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "phone": "+1234567890"
+}
+```
+
+**Example Request**:
+```bash
+curl -X POST http://localhost:9191/producer/publish/customer \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1234567890"
+  }'
+```
+
+**Example Response** (Success):
+```
+"Customer published."
+```
+
+**Response Codes**:
+- `200 OK`: Customer published successfully
+- `500 Internal Server Error`: Error occurred while publishing customer
+
+**Example Usage**:
+```bash
+# Publish a customer with all fields
+curl -X POST http://localhost:9191/producer/publish/customer \
+  -H "Content-Type: application/json" \
+  -d '{"id": 1, "name": "John Doe", "email": "john.doe@example.com", "phone": "+1234567890"}'
+
+# Publish a customer using a JSON file
+curl -X POST http://localhost:9191/producer/publish/customer \
+  -H "Content-Type: application/json" \
+  -d @customer.json
+```
+
+**Customer Object Fields**:
+- `id` (integer, required): Unique customer identifier
+- `name` (string, required): Customer's full name
+- `email` (string, optional): Customer's email address
+- `phone` (string, optional): Customer's phone number
+
 ---
 
 ## 🏗️ Architecture
@@ -328,10 +384,11 @@ curl http://localhost:9191/producer/publish/Test%20Message%202024
 
 ### Components
 
-1. **MessageController**: REST controller that handles HTTP requests
+1. **MessageController**: REST controller that handles HTTP requests (GET and POST endpoints)
 2. **MessagePublisher**: Service layer that encapsulates Kafka publishing logic
-3. **KafkaProducerConfig**: Configuration class for Kafka topics and producers
-4. **KafkaTemplate**: Spring Kafka abstraction for Kafka operations
+3. **Customer**: Data Transfer Object (DTO) for customer information
+4. **KafkaProducerConfig**: Configuration class for Kafka topics and producers
+5. **KafkaTemplate**: Spring Kafka abstraction for Kafka operations
 
 ---
 
@@ -349,6 +406,8 @@ kafka-producer/
 │   │   │       │   └── KafkaProducerConfig.java   # Kafka configuration
 │   │   │       ├── controller/
 │   │   │       │   └── MessageController.java     # REST API endpoints
+│   │   │       ├── dto/
+│   │   │       │   └── Customer.java              # Customer data transfer object
 │   │   │       └── service/
 │   │   │           └── MessagePublisher.java      # Message publishing logic
 │   │   └── resources/
